@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>2D Julia set on the GPU</title>
+    <style>
+        body { background-color: #000; margin: 0; }
+        #main { background: #000; margin: auto auto; display: block; }
+    </style>
+</head>
+<body>
+
+<canvas id="main"></canvas>
+
+<script id="vs-copy-position" type="x-shader/x-vertex">
+
+    // Attributes
+    attribute vec3 a_VertexPosition;
+
+    // Varyings
+    varying vec2    v_Position;
+
+    void main()
+    {
+        v_Position = vec2(a_VertexPosition.xy);
+
+        gl_Position = vec4(v_Position.xy, 0.0, 1.0);
+    }
+
+</script>
+
+<script id="fs-julia" type="x-shader/x-fragment">
+
+#ifdef GL_ES
+    precision highp float;
+#endif
+
+    // Uniforms
+    uniform vec2    u_JuliaConstant;
+    uniform vec2    u_Offset;
+    uniform float   u_Zoom;
+    uniform float   u_ColorShift;
+
+    // Varyings
+    varying vec2    v_Position;
+
+    // Constants
+    const int       MAX_ITERATIONS = 1000;
+    const float     BRIGHTNESS = 25.0;
+
+    void main()
+    {
+        // Offset and scale the current point
+        vec2 z = vec2(v_Position.x, v_Position.y) * u_Zoom + u_Offset;
+
+        // Starting color
+        vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
+
+        for (int i = 0; i < MAX_ITERATIONS; ++i)
+        {
+            // z^2 = (a + bi)^2 = (a^2 - b^2) + (2ab)i
+            z = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y) + u_JuliaConstant;
+
+            // |z| > 2.0 is unbound
+            if (dot(z, z) > 2.0)
+            {
+                float escapeRatio = float(i) / float(MAX_ITERATIONS);
+
+                color.r = u_ColorShift * escapeRatio;
+                color.g = (1.0 - u_ColorShift) * escapeRatio;
+                color.b = (1.0 - u_ColorShift) * escapeRatio;
+
+                // Increse brightness
+                color *= BRIGHTNESS;
+                color.a = 1.0;
+
+                // Bail
+                break;
+            }
+        }
+
+        gl_FragColor = color;
+    }
+
+</script>
+
+<script src="main.js"></script>
+
+</body>
+</html>
