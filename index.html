@@ -49,7 +49,8 @@
 
     // Constants
     const int       MAX_ITERATIONS = 1000;
-    const float     BRIGHTNESS = 25.0;
+    const float     BRIGHTNESS = 35.0;
+    const float     ESCAPE_THRESHOLD = 4.0;
 
     void main()
     {
@@ -64,8 +65,8 @@
             // z^2 = (a + bi)^2 = (a^2 - b^2) + (2ab)i
             z = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y) + u_JuliaConstant;
 
-            // |z| > 2.0 is unbound
-            if (dot(z, z) > 2.0)
+            // |z| > ESCAPE_THRESHOLD is unbound
+            if (dot(z, z) > ESCAPE_THRESHOLD)
             {
                 float escapeRatio = float(i) / float(MAX_ITERATIONS);
 
@@ -73,7 +74,7 @@
                 color.g = (1.0 - u_ColorShift) * escapeRatio;
                 color.b = (1.0 - u_ColorShift) * escapeRatio;
 
-                // Increse brightness
+                // Increase brightness
                 color *= BRIGHTNESS;
                 color.a = 1.0;
 
