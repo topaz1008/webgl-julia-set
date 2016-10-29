@@ -39,6 +39,9 @@ function init() {
     canvas.height = viewHeight;
 
     gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (!gl) {
+        return alert('WebGL is not supported on this browser.');
+    }
 
     var shaders = compileShaders([
         'vs-copy-position',
