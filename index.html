@@ -49,7 +49,6 @@
 
     // Constants
     const int       MAX_ITERATIONS = 1000;
-    const float     BRIGHTNESS = 35.0;
     const float     ESCAPE_THRESHOLD = 4.0;
 
     void main()
@@ -68,18 +67,21 @@
             // |z| > ESCAPE_THRESHOLD is unbound
             if (dot(z, z) > ESCAPE_THRESHOLD)
             {
-                float escapeRatio = float(i) / float(MAX_ITERATIONS);
-
-                color.r = u_ColorShift * escapeRatio;
-                color.g = (1.0 - u_ColorShift) * escapeRatio;
-                color.b = (1.0 - u_ColorShift) * escapeRatio;
-
-                // Increase brightness
-                color *= BRIGHTNESS;
-                color.a = 1.0;
-
                 // Bail
                 break;
+            }
+
+            if (i == (MAX_ITERATIONS - 1))
+            {
+                color = vec4(0.05, 0.05, 0.05, 1.0);
+            }
+            else
+            {
+                color.r = abs((0.7 - u_ColorShift)) * 125.0 * float(i) / float(MAX_ITERATIONS);
+                color.g = abs((0.2 - u_ColorShift)) * 210.0 * float(i) / float(MAX_ITERATIONS);
+                color.b = abs((0.6 - u_ColorShift)) * 225.0 * float(i) / float(MAX_ITERATIONS);
+
+                color.a = 1.0;
             }
         }
 
